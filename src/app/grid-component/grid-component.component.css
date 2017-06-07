@@ -1,0 +1,12 @@
+.x-tree-icon-leaf, .x-tree-icon-text::before {
+  font: normal normal normal 14px/1 "FontAwesome";
+  display: inline-block;
+  color: #5fa2dd;
+}
+
+.x-tree-icon-leaf::before, .x-tree-icon-text::before {
+  content: "\f06c\00a0";
+  font-size: 1em;
+  position: relative;
+  top: -1px;
+}
