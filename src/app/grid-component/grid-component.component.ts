@@ -5,6 +5,12 @@ import { HeaderComponent } from '../header/header.component';
 import { HeaderGroupComponent } from '../header-group/header-group.component';
 import 'ag-grid-enterprise/main';
 
+interface  Country {
+  code: string;
+  name: string;
+}
+
+
 @Component({
   selector: 'app-grid-component',
   templateUrl: './grid-component.component.html',
@@ -38,17 +44,16 @@ export class GridComponent implements OnInit {
           menuIcon: 'fa-bars'
         }
       },
-      groupRowRenderer: 'group',
-      groupRowRendererParams: {
-        checkbox: true,
-        innerRenderer: function(params) {return params.node.key;},
-      },
-      groupColumnDef: {headerName: "Group",
-        cellRenderer: 'group',
+      autoGroupColumnDef: {
+        headerName: "Country",
+        field: 'country',
+        comparator: this.countryComparar,
         cellRendererParams: {
-          checkbox: true
-        }},
-      //groupRowInnerRenderer: function(params) {return params.node.key;},
+          checkbox: true,
+          innerRenderer: this.countryCellRenderer,
+        },
+
+        },
       getRowStyle: function(params) {
         if (params.node.floating) {
           return {'font-weight': 'bold'}
@@ -59,13 +64,14 @@ export class GridComponent implements OnInit {
         this.calcFooter();
       },
       animateRows: true,
-      floatingBottomRowData: [
+      /*floatingBottomRowData: [
         {
           annualSalary: 'loading'
         }
-      ]
+      ]*/
     }
   }
+
 
   ngOnInit() {
     this.createColumnDefs();
@@ -74,9 +80,10 @@ export class GridComponent implements OnInit {
       this.calcFooter();
     };
 
-    /*    this.gridOptions.isFullWidthCell = (rowNode:RowNode)=> {
-     return (rowNode.id === "0") || (parseInt(rowNode.id) % 2 === 0);
-     };*/
+  }
+
+  private grValueGetter(params) {
+    return params.value;
   }
 
   private calcFooter() {
@@ -88,33 +95,36 @@ export class GridComponent implements OnInit {
       }
     });
 
-    let salResult = rowsToCalc.map(r => r.data.annualSalary).reduce((acc, curr) => acc + curr, 0);
+   /* let salResult = rowsToCalc.map(r => r.data.annualSalary).reduce((acc, curr) => acc + curr, 0);
     // console.log('footer result ', seqResult);
-    this.gridOptions.api.setFloatingBottomRowData([
+    this.gridOptions.api.setPinnedBottomRowData([
       {
         annualSalary: salResult
       }
-    ]);
+    ]);*/
   }
 
-  // private  onFloatingBottomCount(footerRowsToFloat) {
-  // var count = Number(footerRowsToFloat);
-  // var rows = this.createData(count, 'Total');
-  // this.gridOptions.api.setFloatingBottomRowData(rows);
-  // }
-  //
-  // private createData(count, prefix) {
-  //   var result = [];
-  //   for (var i = 0; i < count; i++) {
-  //     result.push({
-  //       name: prefix + ' Name ' + i,
-  //       age: prefix + ' Age ' + i,
-  //       gender: prefix + ' Gender ' + i,
-  //       company: prefix + ' Company ' + i,
-  //     });
-  //   }
-  //   return result;
-  // }
+ /* private onFloatingBottomCount(footerRowsToFloat) {
+    var count = Number(footerRowsToFloat);
+    var rows = this.createData(count, 'Total');
+    this.gridOptions.api.setFloatingBottomRowData(rows);
+  }
+
+  private createData(count, prefix) {
+    var result = [];
+    for (var i = 0; i<count; i++) {
+      result.push({
+        athlete: prefix + ' Athlete ' + i,
+        age: prefix + ' Age ' + i,
+        country: prefix + ' Country ' + i,
+        year: prefix + ' Year ' + i,
+        date: prefix + ' Date ' + i,
+        sport: prefix + ' Sport ' + i
+      });
+    }
+    return result;
+  }
+*/
 
   private getContextMenuItems(params) {
     var result = [
@@ -153,6 +163,40 @@ export class GridComponent implements OnInit {
   private onCellContextMenu($event) {
     console.log('onCellContextMenu: ' + $event.rowIndex + ' ' + $event.colDef.field);
   }
+
+  private countryCellRenderer(params) {
+    //get flags from here: http://www.freeflagicons.com/
+    if (params.value === "" || params.value === undefined || params.value === null) {
+      return null;
+    } else {
+      let val = params.value;
+      if(!val || typeof val === 'string')
+      {
+        let flag = '<img border="0" width="15" height="10" src="https://flags.fmcdn.net/data/flags/mini/' +val.code + '.png">';
+        return '<span style="cursor: default;">' + flag + ' ' +val + '</span>';
+      } else {
+        let flag = '<img border="0" width="15" height="10" src="https://flags.fmcdn.net/data/flags/mini/' +val.code + '.png">';
+        return '<span style="cursor: default;">' + flag + ' ' + val.name + '</span>';
+      }
+
+    }
+  }
+
+  private countryComparar(val1: Country, val2: Country) {
+    if (!val1 && !val2) {
+      return 0;
+    }
+    if (!val1) {
+      return -1;
+    }
+    if (!val2) {
+      return 1;
+    }
+    let str1: string = <string>val1.name;
+    let str2: string = <string>val2.name;
+    return str1.localeCompare(str2);
+  }
+
 
   private createColumnDefs() {
     this.columnDefs = [
@@ -211,21 +255,39 @@ export class GridComponent implements OnInit {
           },
           ]
        },
+      {
+        headerName: 'Country',
+        field: 'country',
+        width: 200,
+        filter: 'set',
+        keyCreator: this.countryKeyCreator,
+        cellRenderer: this.countryCellRenderer,
+        comparator: this.countryComparar,
+        rowGroup: true,
+        enableRowGroup: true,
+        rowGroupIndex: 0,
+      },
      ]
+  }
+
+  private countryKeyCreator(params) {
+    let countryObj: Country = params.value;
+    var key = countryObj.name;
+    return key;
   }
 
 //data gets mapped to the corresponding "field" key of the headers
 
   private createRowData() {
     this.rowData = [
-      {name: "Harry", age: 30, gender: "Male", company: "Odotech", annualSalary: 20000},
-      {name: "Sally", age: 28, gender: "Female", company: "Maples", annualSalary: 30000},
-      {name: "Alberto", age: 29, gender: "Male", company: "Odotech", annualSalary: 50000},
-      {name: "Jack", age: 30, gender: "Male", company: "Odotech", annualSalary: 23000},
-      {name: "Sue", age: 28, gender: "Female", company: "Maples", annualSalary: 26000},
-      {name: "Jenny", age: 29, gender: "Female", company: "Odotech", annualSalary: 29000}
+      {name: "Harry", age: 30, gender: "Male", company: "Odotech", annualSalary: 20000, country: { code: 'gb', name: 'United Kingdom'}},
+      {name: "Sally", age: 28, gender: "Female", company: "Maples", annualSalary: 30000, country: { code: 'fr', name: 'France'}},
+      {name: "Alberto", age: 29, gender: "Male", company: "Odotech", annualSalary: 50000, country: { code: 'de', name: 'Germany'}},
+      {name: "Jack", age: 30, gender: "Male", company: "Odotech", annualSalary: 23000, country: { code: 'it', name: 'Italy'}},
+      {name: "Sue", age: 28, gender: "Female", company: "Maples", annualSalary: 26000, country: { code: 'it', name: 'Italy'}},
+      {name: "Jenny", age: 29, gender: "Female", company: "Odotech", annualSalary: 29000, country: {  code: 'gb', name: 'United Kingdom'}}
     ];
-    //this.onFloatingBottomCount(1);
+    // this.onFloatingBottomCount(1);
   }
 
   onChange(e) {

@@ -10,6 +10,9 @@ export class NameAndAgeRendererComponent implements  ICellRendererAngularComp {
   private params: any;
   public values: string;
 
+  refresh(params: any): boolean {
+    return undefined;
+  }
   agInit(params: any): void {
     this.params = params;
     this.values = `name: ${params.data.name}, age: ${params.data.age}, gender: ${params.data.gender}`
