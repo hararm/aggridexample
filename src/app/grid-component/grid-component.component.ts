@@ -4,6 +4,7 @@ import { NameAndAgeRendererComponent } from '../name-and-age-renderer/name-and-a
 import { HeaderComponent } from '../header/header.component';
 import { HeaderGroupComponent } from '../header-group/header-group.component';
 import 'ag-grid-enterprise/main';
+import {GroupRowRendererComponent} from "../renderes/group-renderer.component";
 
 interface  Country {
   code: string;
@@ -29,31 +30,33 @@ export class GridComponent implements OnInit {
       floatingFilter:true,
       rowGroupPanelShow: 'always',
       pivotPanelShow: 'always',
-      //editType: 'fullRow',
-      //groupSuppressAutoColumn: true,
-      //suppressAggFuncInHeader: true,
-      //groupUseEntireRow: true,
-      groupIncludeFooter: true,
+      // editType: 'fullRow',
+      // groupSuppressAutoColumn: true,
+      // suppressAggFuncInHeader: true,
+      groupRowInnerRendererFramework: GroupRowRendererComponent,
+      groupUseEntireRow: true,
+      // groupIncludeFooter: true,
       groupSelectsChildren: true,
-      //allowContextMenuWithControlKey: true,
+      // allowContextMenuWithControlKey: true,
       getContextMenuItems: this.getContextMenuItems,
-      //fullWidthCellRendererFramework: NameAndAgeRendererComponent,
+      // fullWidthCellRendererFramework: NameAndAgeRendererComponent,
       defaultColDef: {
         headerComponentFramework: <{ new(): HeaderComponent }>HeaderComponent,
         headerComponentParams: {
           menuIcon: 'fa-bars'
         }
       },
-      autoGroupColumnDef: {
-        headerName: "Country",
+      /*autoGroupColumnDef: {
+        headerName: 'Country',
         field: 'country',
         comparator: this.countryComparar,
+        cellRenderer: this.countryCellRenderer,
         cellRendererParams: {
           checkbox: true,
           innerRenderer: this.countryCellRenderer,
         },
 
-        },
+        },*/
       getRowStyle: function(params) {
         if (params.node.floating) {
           return {'font-weight': 'bold'}
@@ -165,17 +168,15 @@ export class GridComponent implements OnInit {
   }
 
   private countryCellRenderer(params) {
-    //get flags from here: http://www.freeflagicons.com/
+    // get flags from here: http://www.freeflagicons.com/
     if (params.value === "" || params.value === undefined || params.value === null) {
       return null;
     } else {
       let val = params.value;
-      if(!val || typeof val === 'string')
-      {
-        let flag = '<img border="0" width="15" height="10" src="https://flags.fmcdn.net/data/flags/mini/' +val.code + '.png">';
-        return '<span style="cursor: default;">' + flag + ' ' +val + '</span>';
+      if (!val || typeof val === 'string') {
+        return '<span style="cursor: default;">' + val + '</span>';
       } else {
-        let flag = '<img border="0" width="15" height="10" src="https://flags.fmcdn.net/data/flags/mini/' +val.code + '.png">';
+        let flag = '<img border="0" width="15" height="10" src="https://flags.fmcdn.net/data/flags/mini/' + val.code + '.png">';
         return '<span style="cursor: default;">' + flag + ' ' + val.name + '</span>';
       }
 
@@ -205,7 +206,7 @@ export class GridComponent implements OnInit {
         suppressMenu: true, pinned: true, suppressFilter: true
       },*/
       {
-        headerName: "Employee",
+        headerName: 'Employee',
         headerGroupComponentFramework: HeaderGroupComponent,
         children: [
           {
@@ -272,11 +273,11 @@ export class GridComponent implements OnInit {
 
   private countryKeyCreator(params) {
     let countryObj: Country = params.value;
-    var key = countryObj.name;
+    var key = countryObj.name + ',' + countryObj.code;
     return key;
   }
 
-//data gets mapped to the corresponding "field" key of the headers
+// data gets mapped to the corresponding "field" key of the headers
 
   private createRowData() {
     this.rowData = [

@@ -9,6 +9,7 @@ import { GridComponent } from './grid-component/grid-component.component';
 import { NameAndAgeRendererComponent } from './name-and-age-renderer/name-and-age-renderer.component';
 import { HeaderComponent } from './header/header.component';
 import { HeaderGroupComponent } from './header-group/header-group.component';
+import {GroupRowRendererComponent} from './renderes/group-renderer.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { HeaderGroupComponent } from './header-group/header-group.component';
     GridComponent,
     NameAndAgeRendererComponent,
     HeaderComponent,
-    HeaderGroupComponent
+    HeaderGroupComponent,
+    GroupRowRendererComponent
   ],
   imports: [
     BrowserModule,
@@ -24,7 +26,8 @@ import { HeaderGroupComponent } from './header-group/header-group.component';
     HttpModule,
     AgGridModule.withComponents(
       [
-        //NameAndAgeRendererComponent,
+        // NameAndAgeRendererComponent,
+        GroupRowRendererComponent,
         HeaderComponent,
         HeaderGroupComponent
       ]),
